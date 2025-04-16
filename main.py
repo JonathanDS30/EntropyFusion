@@ -1,31 +1,78 @@
-import hashlib
-
+from modules.pool_entropy import EntropyPool
+from modules.random_daemon import RandomDaemon
+from modules.secure_rng import chacha20_rng
 from modules.text_entropy import get_text_entropy
-from modules.mouse_entropy import collect_mouse_entropy
-from modules.webcam_entropy import capture_webcam_entropy
 from modules.audio_entropy import record_audio_entropy
+from modules.webcam_entropy import capture_webcam_entropy
+from modules.mouse_entropy import collect_mouse_entropy
+import numpy as np
+import os
+import time
 
-def generate_final_entropy():
-    print("[1] Collecte d'entropie via texte")
-    text = get_text_entropy()
 
-    print("[2] Collecte d'entropie via mouvements de souris")
-    mouse = collect_mouse_entropy()
+def clear():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
-    print("[3] Collecte d'entropie via webcam")
+
+def analyse_entropie_pure_python(data: bytes):
+    print("\n📊 Analyse statistique en Python :")
+    data_np = np.frombuffer(data, dtype=np.uint8)
+    entropy = -np.sum([p * np.log2(p) for p in np.bincount(data_np, minlength=256) / len(data_np) if p > 0])
+    mean = np.mean(data_np)
+    serial_corr = np.corrcoef(data_np[:-1], data_np[1:])[0, 1]
+
+    print(f"   🔹 Entropie (Shannon) : {entropy:.4f} bits par octet")
+    print(f"   🔹 Moyenne : {mean:.2f}")
+    print(f"   🔹 Corrélation série : {serial_corr:.4f}\n")
+
+
+def collecte_entropie_humaine(pool):
+    print("\n🧠 Collecte manuelle d'entropie humaine...")
+    print("⌨️ Entropie via texte clavier")
+    user = get_text_entropy()
+
+    print("📸 Capture d'image (webcam)")
     webcam = capture_webcam_entropy()
 
-    print("[4] Collecte d'entropie via micro")
-    audio = record_audio_entropy()
+    print("🖱️ Capture des mouvements de souris")
+    mouse = collect_mouse_entropy(duration=10)
 
-    # Combinaison de toutes les sources
-    combined = text + mouse + webcam + audio
-    print("\nFusion des entropies et hachage SHA-512...")
-    final_hash = hashlib.sha512(combined.encode()).hexdigest()
-    
-    # Génération d'un nombre pseudo-aléatoire (cryptographiquement fort si on veut aller + loin)
-    random_number = int(final_hash, 16) % 1_000_000
-    print(f"\n🎲 Nombre aléatoire sécurisé généré : {random_number}")
+    print("🎙️ Enregistrement sonore (10 sec)")
+    audio = record_audio_entropy(seconds=10)
+
+    combined = (user + webcam + mouse + audio).encode()
+    pool.mix(combined)
+    print("✅ Entropie humaine ajoutée au pool avec succès !\n")
+
+
+def main():
+    clear()
+    print("====== 🧠 GÉNÉRATION COMPLÈTE ======\n")
+
+    print("Étape 1/3 : Ajout d'entropie humaine\n")
+    pool = EntropyPool()
+    pool.start_auto_refresh()
+    daemon = RandomDaemon(pool)
+    daemon.start()
+
+    collecte_entropie_humaine(pool)
+
+    print("Étape 2/3 : Génération d'octets aléatoires\n")
+    entropy = pool.get_entropy()
+    rnd = chacha20_rng(entropy, size=64)
+    print("🎲 Résultat (64 octets en hex) :")
+    print(rnd.hex(), "\n")
+
+    print("Étape 3/3 : Test statistique (256 Ko)")
+    print("⏳ Remplissage du tampon...")
+    try:
+        data = daemon.get_random_bytes(256 * 1024, timeout=15.0)
+        analyse_entropie_pure_python(data)
+    except TimeoutError as e:
+        print(f"❌ Erreur : {e}")
+
+    print("✅ Terminé.\n")
+
 
 if __name__ == "__main__":
-    generate_final_entropy()
+    main()
