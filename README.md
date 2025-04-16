@@ -1,6 +1,10 @@
 # 🔐 Générateur d'Aléatoire Sécurisé basé sur l'Entropie Humaine
 
-![Banner](assets/logo.png)
+<p align="center">
+  <img src="assets/logo.png" alt="FusedEntropy Logo" width="600"/>
+</p>
+
+
 
 Ce projet en Python génère un nombre aléatoire en utilisant plusieurs sources d'entropie imprévisibles. Il peut être utilisé à des fins de démonstration, d'apprentissage en cybersécurité ou même comme base pour des générateurs cryptographiques plus avancés.
 
