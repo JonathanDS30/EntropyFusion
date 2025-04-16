@@ -1,9 +1,9 @@
 import hashlib
 
-from text_entropy import get_text_entropy
-from mouse_entropy import collect_mouse_entropy
-from webcam_entropy import capture_webcam_entropy
-from audio_entropy import record_audio_entropy
+from modules.text_entropy import get_text_entropy
+from modules.mouse_entropy import collect_mouse_entropy
+from modules.webcam_entropy import capture_webcam_entropy
+from modules.audio_entropy import record_audio_entropy
 
 def generate_final_entropy():
     print("[1] Collecte d'entropie via texte")
