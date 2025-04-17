@@ -8,7 +8,7 @@ from modules.mouse_entropy import collect_mouse_entropy
 import numpy as np
 import os
 import time
-
+import base64
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -75,8 +75,11 @@ def main():
     print("Étape 2/3 : Génération d'octets aléatoires\n")
     entropy = pool.get_entropy()
     rnd = chacha20_rng(entropy, size=64)
-    print("🎲 Résultat (64 octets en hex) :")
-    print(rnd.hex(), "\n")
+
+
+    b64 = base64.b64encode(rnd).decode('ascii')
+    print("🎲 Résultat (64 octets en Base64) :")
+    print(b64, "\n")
 
     print("Étape 3/3 : Test statistique (256 Ko)")
     print("⏳ Remplissage du tampon...")
