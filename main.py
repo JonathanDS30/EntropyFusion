@@ -22,8 +22,6 @@ def analyse_entropie_pure_python(data: bytes):
     serial_corr = np.corrcoef(data_np[:-1], data_np[1:])[0, 1]
 
     print(f"   🔹 Entropie (Shannon) : {entropy:.4f} bits par octet")
-    print(f"   🔹 Moyenne : {mean:.2f}")
-    print(f"   🔹 Corrélation série : {serial_corr:.4f}")
 
     print("\n📈 Plage de qualité de l'entropie :")
     seuils = [
