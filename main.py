@@ -23,7 +23,24 @@ def analyse_entropie_pure_python(data: bytes):
 
     print(f"   🔹 Entropie (Shannon) : {entropy:.4f} bits par octet")
     print(f"   🔹 Moyenne : {mean:.2f}")
-    print(f"   🔹 Corrélation série : {serial_corr:.4f}\n")
+    print(f"   🔹 Corrélation série : {serial_corr:.4f}")
+
+    print("\n📈 Plage de qualité de l'entropie :")
+    seuils = [
+        (7.9, 8.0, "✅ Excellent : adapté à la production"),
+        (7.5, 7.9, "✅ Acceptable : utilisable en production"),
+        (7.0, 7.5, "⚠️ Moyen : amélioration recommandée"),
+        (0.0, 7.0, "❌ Faible : non adapté à la production"),
+    ]
+
+    for bas, haut, label in seuils:
+        if bas <= entropy < haut or (haut == 8.0 and entropy == 8.0):
+            print(f" 👉 {bas:.1f} - {haut:.1f} bits : {label}  ← ✅ ENTROPIE MESURÉE ICI")
+        else:
+            print(f"     {bas:.1f} - {haut:.1f} bits : {label}")
+    print()
+
+
 
 
 def collecte_entropie_humaine(pool):
